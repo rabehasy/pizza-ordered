@@ -7,6 +7,7 @@ use App\Builders\QuatreFromagesBuilder;
 use App\Builders\SaumonBuilder;
 use App\Builders\VegetarienneBuilder;
 use App\Directors\PizzaDirector;
+use App\Entity\Pizza;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,10 +19,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:pizza-order')]
 class PizzaOrderCommand extends Command
 {
-    const QUATRE_FROMAGES = '4 fromages (10 eur)';
-    const MARGHERITA = 'margherita (9 eur)';
-    const SAUMON = 'saumon (14 eur)';
-    const VEGETARIENNE = 'vegetarienne (12 eur)';
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -30,7 +27,7 @@ class PizzaOrderCommand extends Command
         // Quel type de pizza veut le client ?
         $typeChoiceQuestion = new ChoiceQuestion(
             'Choisir le type de la pizza souhaitée',
-            [self::QUATRE_FROMAGES, self::MARGHERITA, self::SAUMON, self::VEGETARIENNE],
+            [Pizza::QUATRE_FROMAGES, Pizza::MARGHERITA, Pizza::SAUMON, Pizza::VEGETARIENNE],
         );
         $typeChoiceQuestion->setErrorMessage('Choix "%s" invalide.');
         $pizzaType = $helper->ask($input, $output, $typeChoiceQuestion);
@@ -39,7 +36,7 @@ class PizzaOrderCommand extends Command
         // Taille de la pizza
         $sizeChoiceQuestion = new ChoiceQuestion(
             'Choisir la taille',
-            ['S', 'M', 'L', 'XL (+5 eur)'],
+            [Pizza::TAILLE_S, Pizza::TAILLE_M, Pizza::TAILLE_L, Pizza::TAILLE_XL],
         );
         $sizeChoiceQuestion->setErrorMessage('Choix "%s" invalide.');
         $pizzaSize = $helper->ask($input, $output, $sizeChoiceQuestion);
@@ -51,7 +48,7 @@ class PizzaOrderCommand extends Command
         if ($helper->ask($input, $output, $ingredientConfirmationQuestion)) {
             $ingredientsMultipleChoiceQuestion = new ChoiceQuestion(
                 'Ingrédients à ajouter (chiffre séparé par une virgule)',
-                ['oeuf (+1 eur)', 'chorizo (+1.50 eur)', 'mozarrella (+0.50 eur)', 'champignon (+0.50 eur)'],
+                [Pizza::INGREDIENT_EGG, Pizza::INGREDIENT_CHORIZO, Pizza::INGREDIENT_MOZARELLA, Pizza::INGREDIENT_CHAMPIGNON],
             );
             $ingredientsMultipleChoiceQuestion->setMultiselect(true);
             $ingredientsMultipleChoiceQuestion->setErrorMessage('Choix "%s" invalide.');
@@ -59,10 +56,10 @@ class PizzaOrderCommand extends Command
         }
 
         $pizzaDirectorInstance = match ($pizzaType) {
-            self::QUATRE_FROMAGES => new QuatreFromagesBuilder(),
-            self::MARGHERITA => new MargheritaBuilder(),
-            self::SAUMON => new SaumonBuilder(),
-            self::VEGETARIENNE => new VegetarienneBuilder(),
+            Pizza::QUATRE_FROMAGES => new QuatreFromagesBuilder(),
+            Pizza::MARGHERITA => new MargheritaBuilder(),
+            Pizza::SAUMON => new SaumonBuilder(),
+            Pizza::VEGETARIENNE => new VegetarienneBuilder(),
         };
         $pizzaDirector = new PizzaDirector($pizzaDirectorInstance);
         $pizzaOrdered = $pizzaDirector->create($ingredientsChoices, $pizzaSize);
