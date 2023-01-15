@@ -27,6 +27,7 @@ class PizzaOrderCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $helper = $this->getHelper('question');
+        // Quel type de pizza veut le client ?
         $typeChoiceQuestion = new ChoiceQuestion(
             'Choisir le type de la pizza souhaitée',
             [self::QUATRE_FROMAGES, self::MARGHERITA, self::SAUMON, self::VEGETARIENNE],
@@ -35,6 +36,7 @@ class PizzaOrderCommand extends Command
         $pizzaType = $helper->ask($input, $output, $typeChoiceQuestion);
         $output->writeln('Votre choix: ' . $pizzaType);
 
+        // Taille de la pizza
         $sizeChoiceQuestion = new ChoiceQuestion(
             'Choisir la taille',
             ['S', 'M', 'L', 'XL (+5 eur)'],
@@ -43,6 +45,7 @@ class PizzaOrderCommand extends Command
         $pizzaSize = $helper->ask($input, $output, $sizeChoiceQuestion);
         $output->writeln('Taille: ' . $pizzaSize);
 
+        // Ajout des ingrédients ou pas ?
         $ingredientsChoices = [];
         $ingredientConfirmationQuestion = new ConfirmationQuestion('Ajouter des ingrédients ? (répondre "y" si oui)', false);
         if ($helper->ask($input, $output, $ingredientConfirmationQuestion)) {
