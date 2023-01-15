@@ -3,6 +3,9 @@
 namespace App\Command;
 
 use App\Builders\MargheritaBuilder;
+use App\Builders\QuatreFromagesBuilder;
+use App\Builders\SaumonBuilder;
+use App\Builders\VegetarienneBuilder;
 use App\Directors\PizzaDirector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -15,6 +18,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:pizza-order')]
 class PizzaOrderCommand extends Command
 {
+    const QUATRE_FROMAGES = '4 fromages (10 eur)';
+    const MARGHERITA = 'margherita (9 eur)';
+    const SAUMON = 'saumon (14 eur)';
+    const VEGETARIENNE = 'vegetarienne (12 eur)';
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -22,7 +29,7 @@ class PizzaOrderCommand extends Command
         $helper = $this->getHelper('question');
         $typeChoiceQuestion = new ChoiceQuestion(
             'Choisir le type de la pizza souhaitée',
-            ['4 fromages (10 eur)', 'margherita (9 eur)', 'saumon (14 eur)', 'vegetarienne (12 eur)'],
+            [self::QUATRE_FROMAGES, self::MARGHERITA, self::SAUMON, self::VEGETARIENNE],
         );
         $typeChoiceQuestion->setErrorMessage('Choix "%s" invalide.');
         $pizzaType = $helper->ask($input, $output, $typeChoiceQuestion);
@@ -48,8 +55,14 @@ class PizzaOrderCommand extends Command
             $ingredientsChoices = $helper->ask($input, $output, $ingredientsMultipleChoiceQuestion);
         }
 
-        $pizzaDirector = new PizzaDirector(new MargheritaBuilder());
-        $pizzaOrdered = $pizzaDirector->createMargherita($ingredientsChoices, $pizzaSize);
+        $pizzaDirectorInstance = match ($pizzaType) {
+            self::QUATRE_FROMAGES => new QuatreFromagesBuilder(),
+            self::MARGHERITA => new MargheritaBuilder(),
+            self::SAUMON => new SaumonBuilder(),
+            self::VEGETARIENNE => new VegetarienneBuilder(),
+        };
+        $pizzaDirector = new PizzaDirector($pizzaDirectorInstance);
+        $pizzaOrdered = $pizzaDirector->create($ingredientsChoices, $pizzaSize);
 
         $io->section('Récapitulatif');
         $io->listing([
