@@ -12,10 +12,11 @@ class PizzaDirector
         $this->pizzaBuilder = $pizzaBuilder;
     }
 
-    public function createMargherita(array $ingredients) : Pizza
+    public function createMargherita(array $ingredients, string $size) : Pizza
     {
         return $this->pizzaBuilder
             ->preparePizza()
+            ->setSize($size)
             ->addIngredient($ingredients)
             ->getPizza();
     }

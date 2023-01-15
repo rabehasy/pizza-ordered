@@ -39,6 +39,11 @@ class Pizza
         return $this;
     }
 
+    public function getIngredients(): string
+    {
+        return implode(', ', $this->ingredients);
+    }
+
     public function addIngredient(array $ingredients) : Pizza
     {
         $this->ingredients = array_merge($this->ingredients, $ingredients);

@@ -49,13 +49,13 @@ class PizzaOrderCommand extends Command
         }
 
         $pizzaDirector = new PizzaDirector(new MargheritaBuilder());
-        $pizzaOrdered = $pizzaDirector->createMargherita($ingredientsChoices);
+        $pizzaOrdered = $pizzaDirector->createMargherita($ingredientsChoices, $pizzaSize);
 
         $io->section('Récapitulatif');
         $io->listing([
             'Type : '.$pizzaType,
             'Taille : '.$pizzaSize,
-            'Ingrédients : '.implode(', ', $ingredientsChoices),
+            'Ingrédients : '.$pizzaOrdered->getIngredients(),
             'Prix à payer : '.$pizzaOrdered->getPrice().' Eur',
         ]);
 
